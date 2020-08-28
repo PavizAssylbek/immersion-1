@@ -2,14 +2,6 @@
 session_start();
 require_once "functions.php";
 
-// если была нажата ссылка logout, то выйтии вернуться на страницу логина опять
-if(isset($_GET["logout"])) logout();
-
-//еслиз алогинен, то перенаправлять  на основную страницу и не показывать ничего на странице логина
-// так упрощаем алгоритм отображения на странице логина и избавляемся от лишней сущности в виде страницы логина,
-// где по идее и не надо ничего отображать, кроме формы входа, а если вошел, то надо направлять сразу на основную страницу
-if(is_logged()) redirect_to("main");
-
 ?>
 
 <!DOCTYPE html>
@@ -47,29 +39,16 @@ if(is_logged()) redirect_to("main");
             </a>
         </div>
         <div class="card p-4 border-top-left-radius-0 border-top-right-radius-0">
-            <?php display_flash_message();// если неверный логин или пароль ?>
-            <form action="auth.php" method="post">
-                <div class="form-group">
-                    <label class="form-label" for="username">Email</label>
-                    <input type="email" name="email" id="username" class="form-control" placeholder="Эл. адрес" value="">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="password">Пароль</label>
-                    <input type="password" name="password" id="password" class="form-control" placeholder="" >
-                </div>
-                <div class="form-group text-left">
-                    <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="rememberme">
-                        <label class="custom-control-label" for="rememberme">Запомнить меня</label>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-default float-right">Войти</button>
-            </form>
+        <?php if(is_logged()) :  ?>
+            <?php display_flash_message(); ?>
+            <div class="blankpage-footer text-center">
+                <a href="login.php?logout"><strong>Logout</strong>
+            </div>
+        <?php else :  redirect_to("login"); ?>
+            <?php endif; ?>
         </div>
-     
-        <div class="blankpage-footer text-center">
-            Нет аккаунта? <a href="register.php"><strong>Зарегистрироваться</strong>
-        </div>
+
+
     </div>
     <video poster="img/backgrounds/clouds.png" id="bgvid" playsinline autoplay muted loop>
         <source src="media/video/cc.webm" type="video/webm">

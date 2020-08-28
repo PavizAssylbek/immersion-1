@@ -2,6 +2,7 @@
 session_start();
 require_once "functions.php";
 
+if(is_logged()) redirect_to("main");
 ?>
 
 

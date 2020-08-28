@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Проверяет по email, зарегистрирован ли пользователь.
+ * Проверяет по email, зарегистрирован ли пользователь.@deprecated
  * @param string email
  * @return string email, или false если не зарегистрирован
  */
-function get_user_by_email($email)
+function is_registered($email)
 {
     $driver = 'mysql';
     $host = 'localhost';
-    $db_name = '10lessons';
-    $db_user = '10lessons';
-    $db_password = '10lessons';
+    $db_name = 'immersion';
+    $db_user = 'immersion';
+    $db_password = 'immersion';
     $charset = 'utf8';
     $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC];
 
@@ -38,9 +38,9 @@ function add_user($email, $password)
 {
     $driver = 'mysql';
     $host = 'localhost';
-    $db_name = '10lessons';
-    $db_user = '10lessons';
-    $db_password = '10lessons';
+    $db_name = 'immersion';
+    $db_user = 'immersion';
+    $db_password = 'immersion';
     $charset = 'utf8';
     $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC];
 
@@ -67,9 +67,9 @@ function check_credentials($email, $password)
 {
     $driver = 'mysql';
     $host = 'localhost';
-    $db_name = '10lessons';
-    $db_user = '10lessons';
-    $db_password = '10lessons';
+    $db_name = 'immersion';
+    $db_user = 'immersion';
+    $db_password = 'immersion';
     $charset = 'utf8';
     $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC];
 
@@ -140,7 +140,29 @@ function display_flash_message()
     }
 }
 
+function clear_display_message()
+{
+    unset($_SESSION["status"]);
+    unset($_SESSION["message"]);
+}
+function set_logged()
+{
+    $_SESSION["logged_in"] = true;
+}
+function is_logged()
+{
+    if(isset($_SESSION["logged_in"]))
+        return true;
+    else
+        return false;
+}
 
+function logout()
+{
+        unset($_SESSION["logged_in"]);
+        unset($_SESSION["status"]);
+        redirect_to("login");
+}
 
 function redirect_to($path)
 {

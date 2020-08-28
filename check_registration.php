@@ -13,7 +13,7 @@ status "logged_in" success зеленый залогинен
 if (isset($_POST['email']) && $_POST['password'])
 {
 
-    if(get_user_by_email($_POST['email']))
+    if(is_registered($_POST['email']))
     {
         set_flash_message("already_registered", "Уведомление! Этот эл. адрес уже занят другим пользователем.");
         redirect_to("register");
