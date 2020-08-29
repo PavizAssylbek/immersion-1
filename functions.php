@@ -76,7 +76,7 @@ function check_credentials($email, $password)
     $dsn = "$driver:host=$host;dbname=$db_name;charset=$charset";
     $pdo = new PDO($dsn, $db_user, $db_password, $options);
 
-    $sql = 'SELECT * FROM register WHERE email = :email';
+    $sql = 'SELECT * FROM users WHERE email = :email';
     $params = [
         ':email'  => $email,
         //':password'  => $password,
@@ -90,7 +90,8 @@ function check_credentials($email, $password)
     {
         return [
             "email" => $result["email"],
-            "id" => $result["id"]
+            "id" => $result["id"],
+            "role" => $result["role"]
         ];
     }
     else
@@ -98,6 +99,34 @@ function check_credentials($email, $password)
         return false;
     }
 }
+
+/**
+ * Добавляет пользователя и пароль в базу, если такого еще нет.
+ * @param string email
+ * @param string password
+ * @return null
+ */
+function get_all_users()
+{
+    $driver = 'mysql';
+    $host = 'localhost';
+    $db_name = 'immersion';
+    $db_user = 'immersion';
+    $db_password = 'immersion';
+    $charset = 'utf8';
+    $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC];
+
+    $dsn = "$driver:host=$host;dbname=$db_name;charset=$charset";
+    $pdo = new PDO($dsn, $db_user, $db_password, $options);
+
+    $sql = 'SELECT * FROM users';
+
+    $statement = $pdo->prepare($sql);
+    $statement->execute();
+    return $statement->fetchAll(); //
+
+}
+
 
 /*
 register.php
@@ -145,9 +174,9 @@ function clear_display_message()
     unset($_SESSION["status"]);
     unset($_SESSION["message"]);
 }
-function set_logged()
+function set_logged($data) // хранит массив  со всеми данными о  пользователе, кроме пароля
 {
-    $_SESSION["logged_in"] = true;
+    $_SESSION["logged_in"] = $data;
 }
 function is_logged()
 {
@@ -155,6 +184,18 @@ function is_logged()
         return true;
     else
         return false;
+}
+
+function is_admin()
+{
+    if(isset($_SESSION["logged_in"]))
+    {
+        if($_SESSION["logged_in"]["role"] == 0) // 0 - админ, 1 и выше - пользователи разных уровней доступа
+            return true;
+        else
+            return false;
+    }
+    return false;
 }
 
 function logout()
@@ -169,4 +210,8 @@ function redirect_to($path)
     header('Location: '.$path.'.php');
 }
 
+$result = check_credentials("sunny@mail.com","aaa");
+set_logged($result);
+var_dump($_SESSION);
+var_dump(is_admin());
 ?>

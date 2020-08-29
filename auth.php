@@ -14,7 +14,7 @@ if(isset($_POST["email"]) && isset($_POST["password"]))
         $result = check_credentials($_POST["email"], $_POST["password"]);
 
         if ($result) {
-        set_logged();
+        set_logged($result); // передача массива с данными в сессию, так же тип пользователя админ/юзер
         set_flash_message("logged_in", "Залогинен как ".$result["email"]);
         redirect_to("main");
         }
