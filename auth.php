@@ -15,18 +15,18 @@ if(isset($_POST["email"]) && isset($_POST["password"]))
 
         if ($result) {
         set_logged($result); // передача массива с данными в сессию, так же тип пользователя админ/юзер
-        set_flash_message("logged_in", "Залогинен как ".$result["email"]);
+        set_flash_message("green", "Залогинен как ".$result["email"]);
         redirect_to("users");
         }
         else
         {
-        set_flash_message("wrong_login_or_pass", "Логин или пароль неверны");
+        set_flash_message("red", "Логин или пароль неверны");
             redirect_to("login");
         }
     }
     else
     {
-    set_flash_message("empy_login_or_pass", "Пустой логин или пароль");
+    set_flash_message("red", "Пустой логин или пароль");
         redirect_to("login");
     }
 }

@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Проверяет по email, зарегистрирован ли пользователь.@deprecated
+ * Проверяет по email, зарегистрирован ли пользователь.
  * @param string email
  * @return string email, или false если не зарегистрирован
  */
-function is_registered($email)
+function is_user_registered($email)
 {
     $driver = 'mysql';
     $host = 'localhost';
@@ -18,7 +18,7 @@ function is_registered($email)
     $dsn = "$driver:host=$host;dbname=$db_name;charset=$charset";
     $pdo = new PDO($dsn, $db_user, $db_password, $options);
 
-    $sql = 'SELECT email FROM register WHERE email = :email';
+    $sql = 'SELECT email FROM users WHERE email = :email';
     $params = [
         ':email'  => $email,
     ];
@@ -34,7 +34,7 @@ function is_registered($email)
  * @param string password
  * @return null
  */
-function add_user($email, $password)
+function add_user()
 {
     $driver = 'mysql';
     $host = 'localhost';
@@ -47,14 +47,26 @@ function add_user($email, $password)
     $dsn = "$driver:host=$host;dbname=$db_name;charset=$charset";
     $pdo = new PDO($dsn, $db_user, $db_password, $options);
 
-    $password = password_hash($password, PASSWORD_DEFAULT);
-    $sql = 'INSERT INTO register (email, password) VALUE (:email, :password)';
-    $params = [
-        ':email'  => $email,
-        ':password'  => $password,
-    ];
-    $statement = $pdo->prepare($sql);
-    $statement->execute($params);
+// заменяем в пришедшем массиве из формы пароль на хеш пароля
+    $form_data = $_POST;
+    $replacements = array("password" => password_hash($form_data["password"], PASSWORD_DEFAULT));
+    $form_data = array_replace($form_data, $replacements);
+
+    // автоматическая подготовка всех полей из формы для sql запроса
+    $_sql = array();
+    $sql = "INSERT INTO `users` SET ";
+    foreach ($form_data as $name => $value) {
+        $_sql[] = "`" . $name . "` = :" . $name;
+    }
+
+    $sql = $sql . implode(', ', $_sql);
+    $stmt = $pdo->prepare($sql);
+
+    foreach ($form_data as $name => $value) {
+        $stmt->bindValue(':' . $name, $value);
+    }
+    $stmt->execute();
+
 }
 
 /**
@@ -91,7 +103,8 @@ function check_credentials($email, $password)
         return [
             "email" => $result["email"],
             "id" => $result["id"],
-            "role" => $result["role"]
+            "role" => $result["role"],
+            "name" => $result["name"]
         ];
     }
     else
@@ -128,16 +141,6 @@ function get_all_users()
 }
 
 
-/*
-register.php
-status  "already_registered" warning желтый Уведомление! Этот эл. адрес уже занят другим пользователем
-
-login.php
-status  "register_success" info  голубой Регистрация успешна
-status "empy_login_or_pass" danger красный Пустой логин или пароль
-status "wrong_login_or_pass" danger  красный Логин или пароль неверны
-status "logged_in" success зеленый залогинен
-*/
 /**
  *
  */
@@ -147,21 +150,22 @@ function set_flash_message($status, $message)
     $_SESSION['message'] = $message;
 }
 
+/**
+ *
+ */
 function display_flash_message()
 {
     if(isset($_SESSION["status"]))
     {
             switch($_SESSION["status"])
             {
-                case  "already_registered": $color = "warning";
+                case  "yellow": $color = "warning";
                     break;
-                case  "register_success": $color = "info";
+                case  "blue": $color = "info";
                     break;
-                case  "empy_login_or_pass": $color = "danger";
+                case  "red": $color = "danger";
                     break;
-                case  "wrong_login_or_pass": $color = "danger";
-                    break;
-                case  "logged_in": $color = "success";
+                case  "green": $color = "success";
                     break;
             }
 
@@ -173,11 +177,7 @@ function display_flash_message()
     }
 }
 
-function clear_display_message()
-{
-    unset($_SESSION["status"]);
-    unset($_SESSION["message"]);
-}
+
 function set_logged($data) // хранит массив  со всеми данными о  пользователе, кроме пароля
 {
     $_SESSION["logged_in"] = $data;
@@ -217,6 +217,9 @@ function logout()
   redirect_to("login");
 }
 
+/**
+ *
+ */
 function redirect_to($path)
 {
     header('Location: '.$path.'.php');

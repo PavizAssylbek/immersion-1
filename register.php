@@ -2,7 +2,7 @@
 session_start();
 require_once "functions.php";
 
-if(is_logged()) redirect_to("main");
+//if(is_logged()) redirect_to("users");
 ?>
 
 
@@ -104,12 +104,12 @@ if(is_logged()) redirect_to("main");
         {
 
             // Fetch form to apply custom Bootstrap validation
-            var form = $("#js-login")
+            var form = $("#js-login");
 
             if (form[0].checkValidity() === false)
             {
-                event.preventDefault()
-                event.stopPropagation()
+                event.preventDefault();
+                event.stopPropagation();
             }
 
             form.addClass('was-validated');

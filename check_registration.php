@@ -15,13 +15,13 @@ if (isset($_POST['email']) && $_POST['password'])
 
     if(is_registered($_POST['email']))
     {
-        set_flash_message("already_registered", "Уведомление! Этот эл. адрес уже занят другим пользователем.");
+        set_flash_message("yellow", "Уведомление! Этот эл. адрес уже занят другим пользователем.");
         redirect_to("register");
     }
     else
     {
         add_user($_POST['email'], $_POST['password']);
-        set_flash_message("register_success", "Регистрация успешна");
+        set_flash_message("blue", "Регистрация успешна");
         redirect_to("login");
     }
 
