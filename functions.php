@@ -138,6 +138,9 @@ status "empy_login_or_pass" danger красный Пустой логин или
 status "wrong_login_or_pass" danger  красный Логин или пароль неверны
 status "logged_in" success зеленый залогинен
 */
+/**
+ *
+ */
 function set_flash_message($status, $message)
 {
     $_SESSION['status'] = $status;
@@ -165,7 +168,8 @@ function display_flash_message()
         echo '<div class="alert alert-'.$color.' text-dark" role="alert">
             '.$_SESSION["message"].'
           </div>';
-       // unset($_SESSION["status"]);
+        unset($_SESSION["status"]);
+        unset($_SESSION["message"]);
     }
 }
 
@@ -198,11 +202,19 @@ function is_admin()
     return false;
 }
 
+function is_me()
+{
+    if(isset($_SESSION["logged_in"]))
+        return $_SESSION["logged_in"]["id"];
+    else
+        return false;
+}
+
 function logout()
 {
-        unset($_SESSION["logged_in"]);
-        unset($_SESSION["status"]);
-        redirect_to("login");
+  unset($_SESSION["logged_in"]);
+  unset($_SESSION["status"]);
+  redirect_to("login");
 }
 
 function redirect_to($path)
@@ -210,8 +222,4 @@ function redirect_to($path)
     header('Location: '.$path.'.php');
 }
 
-$result = check_credentials("sunny@mail.com","aaa");
-set_logged($result);
-var_dump($_SESSION);
-var_dump(is_admin());
 ?>
