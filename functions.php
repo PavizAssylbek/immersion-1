@@ -194,7 +194,7 @@ function is_admin()
 {
     if(isset($_SESSION["logged_in"]))
     {
-        if($_SESSION["logged_in"]["role"] == 0) // 0 - админ, 1 и выше - пользователи разных уровней доступа
+        if($_SESSION["logged_in"]["role"] === 0) // 0 - админ, 1 и выше - пользователи разных уровней доступа
             return true;
         else
             return false;
@@ -225,4 +225,66 @@ function redirect_to($path)
     header('Location: '.$path.'.php');
 }
 
+function is_author($edit_user_id)
+{
+    if(is_me() === $edit_user_id)
+        return is_me();
+    else
+        return false;
+}
+
+
+function get_user_by_id($id)
+{
+    $driver = 'mysql';
+    $host = 'localhost';
+    $db_name = 'immersion';
+    $db_user = 'immersion';
+    $db_password = 'immersion';
+    $charset = 'utf8';
+    $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC];
+
+    $dsn = "$driver:host=$host;dbname=$db_name;charset=$charset";
+    $pdo = new PDO($dsn, $db_user, $db_password, $options);
+
+    $sql = 'SELECT * FROM users WHERE id = :id';
+    $params = [
+        ':id'  => $id,
+    ];
+
+    $statement = $pdo->prepare($sql);
+    $statement->execute($params);
+    return $statement->fetch(); // возвращает false, если в базе нет совпадений или массив
+}
+
+function edit_info($id, $name, $job, $tel, $adress)
+{
+    $driver = 'mysql';
+    $host = 'localhost';
+    $db_name = 'immersion';
+    $db_user = 'immersion';
+    $db_password = 'immersion';
+    $charset = 'utf8';
+    $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC];
+
+    $dsn = "$driver:host=$host;dbname=$db_name;charset=$charset";
+    $pdo = new PDO($dsn, $db_user, $db_password, $options);
+
+    $sql = 'UPDATE users SET name = :name, job = :job, tel = :tel, adress = :adress WHERE id = :id';
+    $params = [
+        ':id'  => $id,
+        ':name'  => $name,
+        ':job'  => $job,
+        ':tel'  => $tel,
+        ':adress'  => $adress,
+    ];
+
+    $statement = $pdo->prepare($sql);
+    $statement->execute($params);
+    //return $statement->fetchColumn(); // возвращает false, если в базе нет совпадений или значение из таблицы
+}
+
+//var_dump(edit_info(2, "aaa", "sdf", "234324", "bbb"));
+
 ?>
+
