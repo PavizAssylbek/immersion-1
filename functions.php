@@ -284,6 +284,29 @@ function edit_info($id, $name, $job, $tel, $adress)
     //return $statement->fetchColumn(); // возвращает false, если в базе нет совпадений или значение из таблицы
 }
 
+function set_status($id)
+{
+    $driver = 'mysql';
+    $host = 'localhost';
+    $db_name = 'immersion';
+    $db_user = 'immersion';
+    $db_password = 'immersion';
+    $charset = 'utf8';
+    $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC];
+
+    $dsn = "$driver:host=$host;dbname=$db_name;charset=$charset";
+    $pdo = new PDO($dsn, $db_user, $db_password, $options);
+
+    $sql = 'UPDATE users SET status = :status WHERE id = :id';
+    $params = [
+        ':id'  => $id,
+        ':status'  => $_POST["status"]
+    ];
+
+    $statement = $pdo->prepare($sql);
+    $statement->execute($params);
+}
+
 //var_dump(edit_info(2, "aaa", "sdf", "234324", "bbb"));
 
 ?>
