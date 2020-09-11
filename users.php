@@ -83,7 +83,7 @@ $me = is_me();
                                 <span class="status status-<?php echo $user["status"]; ?> mr-3">
                                     <span class="rounded-circle profile-image d-block " style="background-image:url('img/demo/avatars/<?php echo $user["pic"]; ?>.png'); background-size: cover;"></span>
                                 </span>
-                                <div class="info-card-text flex-1"><?php echo $user["name"]; ?>
+                                <div class="info-card-text flex-1"><a href="profile.php?id=<?php echo $user["id"]; ?>"><?php echo $user["name"]; ?></a>
                                     <?php if($me === $user["id"] || $admin ) : ?>
                                     <a href="javascript:void(0);" class="fs-xl text-truncate text-truncate-lg text-info" data-toggle="dropdown" aria-expanded="false">
                                         <i class="fal fas fa-cog fa-fw d-inline-block ml-1 fs-md"></i>
