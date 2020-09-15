@@ -136,10 +136,16 @@ function get_all_users()
 
     $statement = $pdo->prepare($sql);
     $statement->execute();
-    return $statement->fetchAll(); //
-
+    return $statement->fetchAll();
+    //$result = $statement->fetchAll(); //
+    //return array_replace($result, array("id" => (int) $result["id"], "role" => (int) $result["role"]));
+    //return array_walk_recursive($result, 'change_to_int');
 }
 
+function change_to_int($value, $key)
+{
+    //$key["id"] = (int)
+}
 
 /**
  *
@@ -155,19 +161,19 @@ function set_flash_message($status, $message)
  */
 function display_flash_message()
 {
-    if(isset($_SESSION["status"]))
+    if (isset($_SESSION["status"]))
     {
-            switch($_SESSION["status"])
-            {
-                case  "yellow": $color = "warning";
-                    break;
-                case  "blue": $color = "info";
-                    break;
-                case  "red": $color = "danger";
-                    break;
-                case  "green": $color = "success";
-                    break;
-            }
+        switch($_SESSION["status"])
+        {
+            case  "yellow": $color = "warning";
+                break;
+            case  "blue": $color = "info";
+                break;
+            case  "red": $color = "danger";
+                break;
+            case  "green": $color = "success";
+                break;
+        }
 
         echo '<div class="alert alert-'.$color.' text-dark" role="alert">
             '.$_SESSION["message"].'
@@ -184,7 +190,7 @@ function set_logged($data) // хранит массив  со всеми дан�
 }
 function is_logged()
 {
-    if(isset($_SESSION["logged_in"]))
+    if(isset($_SESSION["logged_in"]["id"]))
         return true;
     else
         return false;
@@ -194,7 +200,7 @@ function is_admin()
 {
     if(isset($_SESSION["logged_in"]))
     {
-        if($_SESSION["logged_in"]["role"] === 0) // 0 - админ, 1 и выше - пользователи разных уровней доступа
+        if($_SESSION["logged_in"]["role"] === '0') // 0 - админ, 1 и выше - пользователи разных уровней доступа
             return true;
         else
             return false;
@@ -212,9 +218,10 @@ function is_me()
 
 function logout()
 {
-  unset($_SESSION["logged_in"]);
-  unset($_SESSION["status"]);
-  redirect_to("login");
+    set_flash_message("yellow","Вы вышли");
+    unset($_SESSION["logged_in"]);
+    unset($_SESSION["editid"]);
+    redirect_to("login");
 }
 
 /**
@@ -223,12 +230,13 @@ function logout()
 function redirect_to($path)
 {
     header('Location: '.$path.'.php');
+    exit;
 }
 
 function is_author($edit_user_id)
 {
-    if(is_me() === $edit_user_id)
-        return is_me();
+    if($_SESSION["logged_in"]["id"] === $edit_user_id)
+        return $_SESSION["logged_in"]["id"];
     else
         return false;
 }
@@ -246,7 +254,7 @@ function get_user_by_id($id)
 
     $dsn = "$driver:host=$host;dbname=$db_name;charset=$charset";
     $pdo = new PDO($dsn, $db_user, $db_password, $options);
-
+    $pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
     $sql = 'SELECT * FROM users WHERE id = :id';
     $params = [
         ':id'  => $id,
@@ -254,7 +262,9 @@ function get_user_by_id($id)
 
     $statement = $pdo->prepare($sql);
     $statement->execute($params);
-    return $statement->fetch(); // возвращает false, если в базе нет совпадений или массив
+    return $statement->fetch();
+    //$result= $statement->fetch(); // возвращает false, если в базе нет совпадений или массив
+    //return array_replace($result, array("id" => (int) $result["id"], "role" => (int) $result["role"]));
 }
 
 function edit_info($id, $name, $job, $tel, $adress)
@@ -307,7 +317,54 @@ function set_status($id)
     $statement->execute($params);
 }
 
-//var_dump(edit_info(2, "aaa", "sdf", "234324", "bbb"));
+function delete_user($id)
+{
+    $driver = 'mysql';
+    $host = 'localhost';
+    $db_name = 'immersion';
+    $db_user = 'immersion';
+    $db_password = 'immersion';
+    $charset = 'utf8';
+    $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC];
 
+    $dsn = "$driver:host=$host;dbname=$db_name;charset=$charset";
+    $pdo = new PDO($dsn, $db_user, $db_password, $options);
+
+    $sql = 'DELETE FROM users WHERE id = :id';
+    $params = [
+        ':id'  => $id,
+    ];
+
+    $statement = $pdo->prepare($sql);
+    $statement->execute($params);
+}
+
+function edit_credentials($user_id, $email, $password)
+{
+    $pass = password_hash($password, PASSWORD_DEFAULT);
+
+    $driver = 'mysql';
+    $host = 'localhost';
+    $db_name = 'immersion';
+    $db_user = 'immersion';
+    $db_password = 'immersion';
+    $charset = 'utf8';
+    $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC];
+
+    $dsn = "$driver:host=$host;dbname=$db_name;charset=$charset";
+    $pdo = new PDO($dsn, $db_user, $db_password, $options);
+
+    $sql = 'UPDATE users SET email = :email, password = :password WHERE id = :id';
+    $params = [
+        ':id'  => $user_id,
+        ':email'  => $email,
+        ':password' => $pass
+    ];
+
+    $statement = $pdo->prepare($sql);
+    $statement->execute($params);
+}
+//var_dump(edit_info(2, "aaa", "sdf", "234324", "bbb"));
+//var_dump(edit_credentials(3, "sdfd@dsff.aaa", "bbb"));
 ?>
 

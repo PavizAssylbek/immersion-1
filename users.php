@@ -2,10 +2,26 @@
 session_start();
 require_once "functions.php";
 
-//if(!is_logged()) redirect_to("login");
+if(!is_logged()) redirect_to("login");
 
 // если была нажата ссылка logout, то выйтии вернуться на страницу логина опять
 if(isset($_GET["logout"])) logout();
+
+if(isset($_GET["id"]))
+{
+    if(is_admin())
+    {
+        delete_user($_GET["id"]);
+        set_flash_message("blue", "Пользователь удален");
+        redirect_to("users");
+    }
+
+    if(is_author($_GET["id"]))
+    {
+        delete_user($_GET["id"]);
+        logout();
+    }
+}
 
 $users = get_all_users();
 
@@ -91,7 +107,7 @@ $me = is_me();
                                     </a>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item" href="edit.php?id=<?php echo $user["id"]; ?>"><i class="fa fa-edit"></i>Редактировать</a>
-                                        <a class="dropdown-item" href="security..php?id=<?php echo $user["id"]; ?>"><i class="fa fa-lock"></i>Безопасность</a>
+                                        <a class="dropdown-item" href="security.php?id=<?php echo $user["id"]; ?>"><i class="fa fa-lock"></i>Безопасность</a>
                                         <a class="dropdown-item" href="status.php?id=<?php echo $user["id"]; ?>"><i class="fa fa-sun"></i>Установить статус</a>
                                         <a class="dropdown-item" href="media.php?id=<?php echo $user["id"]; ?>"><i class="fa fa-camera"></i>Загрузить аватар</a>
                                         <a href="users.php?id=<?php echo $user["id"]; ?>" class="dropdown-item" onclick="return confirm('are you sure?');"><i class="fa fa-window-close"></i>Удалить</a>

@@ -1,4 +1,5 @@
 <?php
+session_start();
 /*
 register.php
 status  "already_registered" warning желтый Уведомление! Этот эл. адрес уже занят другим пользователем
